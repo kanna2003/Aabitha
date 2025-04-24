@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weather App</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      background: #e0f7fa;
+      padding: 50px;
+    }
+
+    input {
+      font-size: 30px;
+      padding: 10px;
+      width: 300px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    h1 {
+      font-size: 35px;
+      margin-top: 30px;
+    }
+
+    p {
+      font-size: 18px;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body>
+
+  <input type="text" id="cityInput" placeholder="Enter city name" onkeypress="checkEnter(event)" />
+  <h1 id="mainWeather"></h1>
+  <p id="details"></p>
+
+  <script>
+    async function getWeather(city) {
+      const apiKey = "def8d4a619eb81c5eaac68d2758be2dd";
+      const api = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
+
+      try {
+        const response = await fetch(api);
+        const data = await response.json();
+
+        if (data.cod != "404") {
+          const condition = data.weather[0].main;
+          const temp = parseInt(data.main.temp - 273.15);
+          const min_temp = parseInt(data.main.temp_min - 273.15);
+          const max_temp = parseInt(data.main.temp_max - 273.15);
+          const pressure = data.main.pressure;
+          const humidity = data.main.humidity;
+          const wind = data.wind.speed;
+
+          const sunrise = new Date((data.sys.sunrise + data.timezone - 21600) * 1000).toLocaleTimeString();
+          const sunset = new Date((data.sys.sunset + data.timezone - 21600) * 1000).toLocaleTimeString();
+
+          document.getElementById("mainWeather").innerText = `${condition}\n${temp}°C`;
+          document.getElementById("details").innerText =
+            `Max_temp: ${max_temp}°C\nMin_temp: ${min_temp}°C\nPressure: ${pressure} hPa\nHumidity: ${humidity}%\nWind speed: ${wind} m/s\nSunrise: ${sunrise}\nSunset: ${sunset}`;
+        } else {
+          document.getElementById("mainWeather").innerText = "City not found";
+          document.getElementById("details").innerText = "";
+        }
+      } catch (err) {
+        document.getElementById("mainWeather").innerText = "Connection Error";
+        document.getElementById("details").innerText = "";
+      }
+    }
+
+    function checkEnter(event) {
+      if (event.key === "Enter") {
+        const city = document.getElementById("cityInput").value;
+        getWeather(city);
+      }
+    }
+  </script>
+
+</body>
+</html>
